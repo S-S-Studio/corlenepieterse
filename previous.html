@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A selection of previous paintings and sold works.">
+  <title>Previous Paintings | Artist Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="artist-name" href="index.html" aria-label="Home">ARTIST NAME</a>
+
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="main-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="main-menu" id="main-menu" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="for-sale.html">Paintings for Sale</a>
+      <a href="previous.html">Previous Paintings</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+  </header>
+
+  <main class="inner-page">
+    <section class="page-heading">
+      <p class="eyebrow">PORTFOLIO</p>
+      <h1>Previous Paintings</h1>
+      <p>A selection of completed and previously sold works.</p>
+    </section>
+
+    <div class="filter-bar" data-filter-group="previous">
+      <button class="filter-button active" data-filter="all">All</button>
+      <button class="filter-button" data-filter="wildlife">Wildlife</button>
+      <button class="filter-button" data-filter="farm-animals">Farm Animals</button>
+      <button class="filter-button" data-filter="nature">Nature</button>
+      <button class="filter-button" data-filter="human">Human</button>
+      <button class="filter-button" data-filter="other">Other</button>
+    </div>
+
+    <section class="gallery-grid" id="previous-gallery" aria-live="polite"></section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Artist Name</p>
+    <a href="contact.html">Contact</a>
+  </footer>
+
+  <script src="paintings-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

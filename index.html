@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Original paintings, previous works and custom commissions.">
+  <title>Artist Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="artist-name" href="index.html" aria-label="Home">ARTIST NAME</a>
+
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="main-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="main-menu" id="main-menu" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="for-sale.html">Paintings for Sale</a>
+      <a href="previous.html">Previous Paintings</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <img
+        src="assets/images/artist-hero-placeholder.svg"
+        alt="Artist standing among her paintings"
+        class="hero-image"
+      >
+    </section>
+
+    <section class="about section">
+      <p class="eyebrow">ABOUT THE ARTIST</p>
+      <h1>Artist Name</h1>
+      <p class="about-copy">
+        Add a short introduction here about the artist, her inspiration, the subjects she enjoys painting,
+        and the style or feeling behind her work.
+      </p>
+
+      <div class="commission-note">
+        <p>Custom paintings available on request.</p>
+        <a class="text-link" href="contact.html">Contact on WhatsApp</a>
+      </div>
+    </section>
+
+    <section class="page-directors section" aria-label="Painting galleries">
+      <a class="director-card" href="for-sale.html">
+        <span class="director-label">Browse</span>
+        <strong>Paintings for Sale</strong>
+        <span class="director-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="director-card" href="previous.html">
+        <span class="director-label">Portfolio</span>
+        <strong>Previous Paintings</strong>
+        <span class="director-arrow" aria-hidden="true">→</span>
+      </a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Artist Name</p>
+    <a href="contact.html">Contact</a>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
