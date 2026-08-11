@@ -42,7 +42,7 @@ function initialiseGeneralWhatsApp() {
     return;
   }
 
-  link.href = whatsappUrl("Hi, I would like to enquire about your paintings.");
+  link.href = whatsappUrl("Hi, I would like to ask about your paintings.");
   link.target = "_blank";
 }
 
@@ -57,10 +57,10 @@ function paintingCard(painting) {
       ? `<div class="painting-actions">
           <a
             class="primary-button"
-            href="${whatsappUrl(`Hi, I'm interested in the painting "${painting.title}".`)}"
+            href="${whatsappUrl(`Hi, I would like to ask about the painting "${painting.title}".`)}"
             target="_blank"
             rel="noopener"
-          >Contact on WhatsApp</a>
+          >Contact Artist</a>
         </div>`
       : "";
 

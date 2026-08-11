@@ -21,7 +21,8 @@
       <a href="index.html">Home</a>
       <a href="for-sale.html">Paintings for Sale</a>
       <a href="previous.html">Previous Paintings</a>
-      <a href="contact.html">Contact Us</a>
+      <a href="index.html#newsletter">News</a>
+      <a href="contact.html">Contact Artist</a>
     </nav>
   </header>
 
@@ -42,9 +43,15 @@
         and the style or feeling behind her work.
       </p>
 
+      <section class="news-triggers" aria-labelledby="latest-news-heading">
+        <p class="eyebrow" id="latest-news-heading">LATEST NEWS</p>
+        <a class="news-trigger" href="#news-item-1">Check out my stall at NAMPO</a>
+        <a class="news-trigger" href="#news-item-2">New wildlife collection available</a>
+      </section>
+
       <div class="commission-note">
         <p>Custom paintings available on request.</p>
-        <a class="text-link" href="contact.html">Contact on WhatsApp</a>
+        <a class="text-link" href="contact.html">Contact Artist</a>
       </div>
     </section>
 
@@ -52,20 +59,40 @@
       <a class="director-card" href="for-sale.html">
         <span class="director-label">Browse</span>
         <strong>Paintings for Sale</strong>
-        <span class="director-arrow" aria-hidden="true">→</span>
+        <span class="director-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8 4.5L15.5 12 8 19.5"></path></svg></span>
       </a>
 
       <a class="director-card" href="previous.html">
         <span class="director-label">Portfolio</span>
         <strong>Previous Paintings</strong>
-        <span class="director-arrow" aria-hidden="true">→</span>
+        <span class="director-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M8 4.5L15.5 12 8 19.5"></path></svg></span>
       </a>
+    </section>
+
+    <section class="newsletter section" id="newsletter" aria-labelledby="newsletter-heading">
+      <p class="eyebrow">NEWS & UPDATES</p>
+      <h2 id="newsletter-heading">Latest from the Artist</h2>
+
+      <article class="newsletter-item" id="news-item-1">
+        <h3>Check out my stall at NAMPO</h3>
+        <p>This is placeholder newsletter text. The full event or stall announcement will appear here.</p>
+      </article>
+
+      <article class="newsletter-item" id="news-item-2">
+        <h3>New wildlife collection available</h3>
+        <p>This is placeholder newsletter text. New work and other artist updates can be published here.</p>
+      </article>
+    </section>
+
+    <section class="bottom-contact section">
+      <p>Need help?</p>
+      <a class="primary-button" href="contact.html">Contact Artist</a>
     </section>
   </main>
 
   <footer class="site-footer">
     <p>© <span id="year"></span> Artist Name</p>
-    <a href="contact.html">Contact</a>
+    <a href="contact.html">Contact Artist</a>
   </footer>
 
   <script src="script.js"></script>
