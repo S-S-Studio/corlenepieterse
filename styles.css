@@ -1,79 +1,3 @@
-
-
-
-
-dis hoe hy dit doen
-
-
-arrows is nie daar nie
-Custom paintings available se text font moet moet klein bietjie groter wees
-Contact page lyk sleg
-
-Op daai page moet Daar so staan:
-
-Onder die contact artist deel,
-
-Whatsapp:
-(Button wat se "Send Whatsapp message"
-
-Email:
-Email@example.com
-
-
-
-
-
-
-Daai "For available paintings etc etc" moet weg en die res mooi op die page gespasieer
-
-Today 8:48 AM
-WhatsApp Image 2026-08-13 at 08.20.44.jpeg
-WhatsApp Image 2026-08-13 at 08.20.43 (1).jpeg
-WhatsApp Image 2026-08-13 at 08.20.43.jpeg
-WhatsApp Image 2026-08-13 at 08.20.44 (1).jpeg
-
-Ja, ek sien nou hoe V003 werklik op die foon render. Die arrows is nou reg en pas baie beter by die theme.
-
-Daar is net twee goed wat ek self nou sal uitwys voordat ons verder gaan:
-
-Die sticky header is effens deurskynend, daarom sien mens die page se teks vaagweg agter ARTIST NAME wanneer jy scroll. Ek dink dit moet eerder 100% wit wees sodat niks agter hom deurwys nie.
-
-Die res van die spacing lyk vir my reeds baie beter, veral Latest News → Custom paintings → directors → full News section.
-
-Ek verander niks totdat jy sê nie. As jy nog changes uit hierdie screenshots sien, gee hulle vir my almal saam en dan maak ons die volgende version in een slag.
-
-
-Daar is net n dubbel lyn tussen nw wildlife collection available en custom paintings on request, die effens deurskynende header kan so bly.
-
-Ja, ek sien daai dubbel lyn. Dit kom van die bottom border van Latest News plus die top spacing/border rondom die Custom Paintings section.
-
-Ek sal in V004 net daardie dubbel lyn regmaak sodat daar net een skoon divider tussen die twee sections is.
-
-Die effens deurskynende header los ons presies soos hy nou is.
-
-Ek verander niks anders nie. As jy sê maak V004, doen ek net daardie een fix.
-
-
-Doen dit gou, maar gee net die files wat nodig is om te replace
-
-Net een file hoef vervang te word:
-
-
-Rename hom net na:
-
-styles.css
-
-en replace die bestaande styles.css in GitHub. Dit verwyder net die ekstra lyn tussen Latest News en Custom paintings available on request. 
-
-
-
-Library
-/
-SilverSword222
-/
-styles_v004.css
-
-
 * {
   box-sizing: border-box;
 }
@@ -242,7 +166,6 @@ h2 {
 
 .commission-note {
   padding-top: 22px;
-  border-top: 1px solid var(--line);
 }
 
 .commission-note p {
