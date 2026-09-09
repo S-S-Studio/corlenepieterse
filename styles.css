@@ -87,7 +87,7 @@ img {
   display: none;
   flex-direction: column;
   padding: 14px 20px 26px;
-  background: var(--white);
+  background: var(--soft);
   border-bottom: 1px solid var(--line);
 }
 
@@ -158,10 +158,14 @@ h2 {
 }
 
 .about-copy {
-  max-width: 720px;
+  max-width: 760px;
   margin-bottom: 28px;
   color: #333333;
   font-size: 1rem;
+}
+
+.about-copy p {
+  margin-bottom: 18px;
 }
 
 .commission-note {
@@ -400,10 +404,15 @@ h2 {
 
 .painting-category,
 .painting-price,
-.painting-status {
+.painting-status,
+.painting-detail {
   margin-bottom: 0;
   color: var(--grey);
   font-size: 0.86rem;
+}
+
+.painting-detail {
+  margin-top: 4px;
 }
 
 .painting-actions {

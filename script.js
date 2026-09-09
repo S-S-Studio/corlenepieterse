@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = "27000000000";
+const WHATSAPP_NUMBER = "27712170470";
 
 function initialiseMenu() {
   const toggle = document.querySelector(".menu-toggle");
@@ -71,8 +71,10 @@ function paintingCard(painting) {
       </div>
       <div class="painting-meta">
         <div>
-          <h2 class="painting-title">${painting.title}</h2>
+          ${painting.title ? `<h2 class="painting-title">${painting.title}</h2>` : ""}
           <p class="painting-category">${painting.categoryLabel}</p>
+          ${painting.medium ? `<p class="painting-detail">${painting.medium}</p>` : ""}
+          ${painting.dimensions ? `<p class="painting-detail">${painting.dimensions}</p>` : ""}
         </div>
         ${priceOrStatus}
       </div>

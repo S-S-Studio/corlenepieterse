@@ -1,10 +1,19 @@
-ARTIST WEBSITE V005
+CORLÉNE PIETERSE WEBSITE V007
 
-Built directly from the working V003.
+Based on approved V006.
 
-Changes:
-- Removed only the extra divider above the Custom Paintings section.
-- Kept the Latest News bottom divider, leaving a single clean divider line.
-- All HTML pages now load the stylesheet as ./styles.css?v=005 to avoid stale browser/GitHub cache issues.
+Added real artist content:
+- Corléne Pieterse
+- North West, South Africa
+- Approved About text
+- Real hero photo
+- WhatsApp +27 71 217 0470
+- art@corlenepieterse.co.za
+- Facebook link
+- NAMPO ALFA 2026 news item
+- First For Sale painting: Oudste siel
+- R10 500
+- 70 × 100 cm
+- Oil on Stretched Canvas
 
-No other design, layout, wording, header, arrow, contact-page, gallery, or spacing changes were made.
+Only one painting is intentionally included for gallery testing.
