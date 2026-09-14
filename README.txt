@@ -1,19 +1,15 @@
-CORLÉNE PIETERSE WEBSITE V007
+CORLÉNE PIETERSE WEBSITE V009
 
-Based on approved V006.
+Built directly from V008.
 
-Added real artist content:
-- Corléne Pieterse
-- North West, South Africa
-- Approved About text
-- Real hero photo
-- WhatsApp +27 71 217 0470
-- art@corlenepieterse.co.za
-- Facebook link
-- NAMPO ALFA 2026 news item
-- First For Sale painting: Oudste siel
-- R10 500
-- 70 × 100 cm
-- Oil on Stretched Canvas
+Changes:
+- Mobile hero image is shorter while still showing the entire image.
+- Paintings for Sale and Previous Paintings now sit directly under the hero.
+- On mobile, the two gallery director cards fit side-by-side.
+- About the Artist now starts with a short introduction and a See more / See less control.
+- The full approved artist biography expands on the same page.
+- NAMPO ALFA 2026 banner added to the newsletter section.
+- Facebook icon/link added to the homepage contact area.
+- Existing Contact page remains unchanged apart from stylesheet cache version.
 
-Only one painting is intentionally included for gallery testing.
+No other intended changes were made.

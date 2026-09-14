@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Original paintings, previous works and custom commissions.">
   <title>Corléne Pieterse | Fine Artist</title>
-  <link rel="stylesheet" href="./styles.css?v=007">
+  <link rel="stylesheet" href="./styles.css?v=009">
 </head>
 <body>
   <header class="site-header">
@@ -35,29 +35,6 @@
       >
     </section>
 
-    <section class="about section">
-      <p class="eyebrow">ABOUT THE ARTIST</p>
-      <h1>Corléne Pieterse</h1>
-      <div class="about-copy">
-        <p>My name is Corléne Pieterse. I am a self-taught painter based on a farm in North West, South Africa.</p>
-        <p>I have been painting for 22 years. I never studied art — I learned by watching. Watching how dust hangs in the air after cattle cross a road, how the grass in a field holds many colours and textures, how light and shadow change at 5pm, and how everything comes together to bring realism to a painting.</p>
-        <p>That is what I try to paint: not just an object, but its presence. Its character.</p>
-        <p>My passion is realistic wildlife and portrait paintings in oil, but over the years I have learned to say yes to almost anything — if it has meaning for you, I will paint it. From a beloved dog, to your grandmother’s farmhouse, to anything beautiful you want to bring into your home.</p>
-        <p>Growing up on a farm taught me that nature is not separate from us. It belongs in our homes. My goal is to bring a piece of our beautiful world — its strength, its silence, its wildness — onto your wall.</p>
-        <p>All works are original oils. Commissions and custom sizes are welcome.</p>
-      </div>
-
-      <section class="news-triggers" aria-labelledby="latest-news-heading">
-        <p class="eyebrow" id="latest-news-heading">LATEST NEWS</p>
-        <a class="news-trigger" href="#news-item-1">Come Visit My Art Exhibition at NAMPO ALFA 2026</a>
-      </section>
-
-      <div class="commission-note">
-        <p>Custom paintings available on request.</p>
-        <a class="text-link" href="contact.html">Contact Artist</a>
-      </div>
-    </section>
-
     <section class="page-directors section" aria-label="Painting galleries">
       <a class="director-card" href="for-sale.html">
         <span class="director-label">Browse</span>
@@ -72,9 +49,48 @@
       </a>
     </section>
 
+    <section class="about section">
+      <p class="eyebrow">ABOUT THE ARTIST</p>
+      <h1>Corléne Pieterse</h1>
+
+      <div class="about-intro">
+        <p>I’m Corléne Pieterse, a self-taught painter from North West, South Africa.</p>
+        <button class="see-more-button" id="about-toggle" type="button" aria-expanded="false" aria-controls="about-full">See more</button>
+      </div>
+
+      <div class="about-full" id="about-full" hidden>
+        <p>I have been painting for 22 years. I never studied art — I learned by watching. Watching how dust hangs in the air after cattle cross a road, how the grass in a field holds many colours and textures, how light and shadow change at 5pm, and how everything comes together to bring realism to a painting.</p>
+
+        <p>That is what I try to paint: not just an object, but its presence. Its character.</p>
+
+        <p>My passion is realistic wildlife and portrait paintings in oil, but over the years I have learned to say yes to almost anything — if it has meaning for you, I will paint it. From a beloved dog, to your grandmother’s farmhouse, to anything beautiful you want to bring into your home.</p>
+
+        <p>Growing up on a farm taught me that nature is not separate from us. It belongs in our homes. My goal is to bring a piece of our beautiful world — its strength, its silence, its wildness — onto your wall.</p>
+
+        <p>All works are original oils. Commissions and custom sizes are welcome.</p>
+      </div>
+
+      <section class="news-triggers" aria-labelledby="latest-news-heading">
+        <p class="eyebrow" id="latest-news-heading">LATEST NEWS</p>
+        <a class="news-trigger" href="#news-item-1">Come Visit My Art Exhibition at NAMPO ALFA 2026</a>
+      </section>
+
+      <div class="commission-note">
+        <p>Custom paintings available on request.</p>
+        <a class="text-link" href="contact.html">Contact Artist</a>
+      </div>
+    </section>
+
+      <div class="commission-note">
+        <p>Custom paintings available on request.</p>
+        <a class="text-link" href="contact.html">Contact Artist</a>
+      </div>
+    </section>
+
     <section class="newsletter section" id="newsletter" aria-labelledby="newsletter-heading">
       <p class="eyebrow">NEWS & UPDATES</p>
       <h2 id="newsletter-heading">Latest from the Artist</h2>
+      <img class="newsletter-banner" src="assets/images/nampo-alfa-2026.jpeg" alt="NAMPO ALFA 2026, 2–3 October 2026, NAMPO Park, Bothaville">
       <article class="newsletter-item" id="news-item-1">
         <h3>Come Visit My Art Exhibition at NAMPO ALFA 2026</h3>
         <p>I will be showing and selling my original paintings, including realistic wildlife, cattle and farm life.</p>
@@ -87,7 +103,14 @@
 
     <section class="bottom-contact section">
       <p>Need help?</p>
-      <a class="primary-button" href="contact.html">Contact Artist</a>
+      <div class="bottom-contact-actions">
+        <a class="primary-button" href="contact.html">Contact Artist</a>
+        <a class="facebook-icon-link" href="https://www.facebook.com/share/1Ef3QSD8dy/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Visit Corléne Pieterse on Facebook">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M13.5 21v-8h2.8l.4-3h-3.2V8.1c0-.9.3-1.6 1.7-1.6H17V3.8c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H7.5v3h2.8v8h3.2z"></path>
+          </svg>
+        </a>
+      </div>
     </section>
   </main>
 
