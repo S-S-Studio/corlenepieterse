@@ -566,6 +566,7 @@ h2 {
   overflow: hidden;
   touch-action: none;
   cursor: grab;
+  background: transparent;
 }
 
 .image-viewer-stage.dragging {
@@ -576,14 +577,15 @@ h2 {
   position: absolute;
   left: 50%;
   top: 50%;
-  max-width: 92vw;
-  max-height: 92vh;
-  width: auto;
-  height: auto;
+  width: 94vw;
+  height: 94vh;
+  max-width: none;
+  max-height: none;
   object-fit: contain;
   transform-origin: center center;
   will-change: transform;
   pointer-events: none;
+  backface-visibility: hidden;
 }
 
 .image-viewer-close {
@@ -651,17 +653,20 @@ body.viewer-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--black);
-  color: var(--black);
-  background: var(--white);
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #1877F2;
+  color: #ffffff;
+  text-decoration: none;
+  line-height: 1;
 }
 
 .facebook-icon-link svg {
-  width: 22px;
-  height: 22px;
-  fill: currentColor;
+  display: none;
 }
 
 
@@ -761,9 +766,7 @@ body.viewer-open {
 }
 
 .facebook-icon-link svg {
-  width: 21px;
-  height: 21px;
-  fill: #ffffff;
+  display: none;
 }
 
 .contact-facebook {
@@ -783,4 +786,16 @@ body.viewer-open {
   .custom-highlight .primary-button {
     width: 100%;
   }
+}
+
+
+.facebook-f {
+  display: block;
+  margin-top: 5px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  transform: scaleX(0.88);
 }

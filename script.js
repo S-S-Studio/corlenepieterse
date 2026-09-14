@@ -148,44 +148,101 @@ function initialiseImageViewer() {
 
   if (!viewer || !stage || !image || !closeButton) return;
 
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 8;
+
   let scale = 1;
   let x = 0;
   let y = 0;
-  let dragging = false;
-  let startX = 0;
-  let startY = 0;
-  let startTranslateX = 0;
-  let startTranslateY = 0;
-  let initialPinchDistance = 0;
-  let initialPinchScale = 1;
 
-  const clamp = value => Math.min(6, Math.max(1, value));
+  let targetScale = 1;
+  let targetX = 0;
+  let targetY = 0;
 
-  function apply() {
-    image.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
+  let animationFrame = null;
+  let mouseDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragStartTranslateX = 0;
+  let dragStartTranslateY = 0;
+
+  let pinchStartDistance = 0;
+  let pinchStartScale = 1;
+  let pinchStartCenterX = 0;
+  let pinchStartCenterY = 0;
+  let pinchStartTranslateX = 0;
+  let pinchStartTranslateY = 0;
+
+  const clamp = value => Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
+
+  function applyTransform() {
+    image.style.transform =
+      `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0) scale(${scale})`;
   }
 
-  function reset() {
+  function stopAnimation() {
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+  }
+
+  function animateToTarget() {
+    const ease = 0.24;
+
+    scale += (targetScale - scale) * ease;
+    x += (targetX - x) * ease;
+    y += (targetY - y) * ease;
+
+    if (
+      Math.abs(targetScale - scale) < 0.001 &&
+      Math.abs(targetX - x) < 0.1 &&
+      Math.abs(targetY - y) < 0.1
+    ) {
+      scale = targetScale;
+      x = targetX;
+      y = targetY;
+      applyTransform();
+      animationFrame = null;
+      return;
+    }
+
+    applyTransform();
+    animationFrame = requestAnimationFrame(animateToTarget);
+  }
+
+  function requestSmoothUpdate() {
+    if (!animationFrame) {
+      animationFrame = requestAnimationFrame(animateToTarget);
+    }
+  }
+
+  function resetTransform() {
+    stopAnimation();
     scale = 1;
     x = 0;
     y = 0;
-    apply();
+    targetScale = 1;
+    targetX = 0;
+    targetY = 0;
+    applyTransform();
   }
 
   function openViewer(src, alt) {
     image.src = src;
     image.alt = alt || "Painting";
-    reset();
+    resetTransform();
     viewer.classList.add("open");
     viewer.setAttribute("aria-hidden", "false");
     document.body.classList.add("viewer-open");
   }
 
   function closeViewer() {
+    stopAnimation();
     viewer.classList.remove("open");
     viewer.setAttribute("aria-hidden", "true");
     document.body.classList.remove("viewer-open");
-    reset();
+    resetTransform();
   }
 
   document.addEventListener("click", event => {
@@ -198,98 +255,182 @@ function initialiseImageViewer() {
   closeButton.addEventListener("click", closeViewer);
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && viewer.classList.contains("open")) closeViewer();
+    if (event.key === "Escape" && viewer.classList.contains("open")) {
+      closeViewer();
+    }
   });
 
   stage.addEventListener("wheel", event => {
     event.preventDefault();
-    scale = clamp(scale * (event.deltaY < 0 ? 1.12 : 0.89));
-    if (scale === 1) {
-      x = 0;
-      y = 0;
+
+    const rect = stage.getBoundingClientRect();
+    const pointerX = event.clientX - rect.left - rect.width / 2;
+    const pointerY = event.clientY - rect.top - rect.height / 2;
+
+    const oldScale = targetScale;
+    const zoomFactor = Math.exp(-event.deltaY * 0.0015);
+    targetScale = clamp(targetScale * zoomFactor);
+
+    if (targetScale <= MIN_SCALE + 0.001) {
+      targetScale = MIN_SCALE;
+      targetX = 0;
+      targetY = 0;
+    } else {
+      const ratio = targetScale / oldScale;
+      targetX = pointerX - (pointerX - targetX) * ratio;
+      targetY = pointerY - (pointerY - targetY) * ratio;
     }
-    apply();
+
+    requestSmoothUpdate();
   }, { passive: false });
 
   stage.addEventListener("mousedown", event => {
-    if (scale <= 1) return;
-    dragging = true;
+    if (targetScale <= 1) return;
+
+    stopAnimation();
+    scale = targetScale;
+    x = targetX;
+    y = targetY;
+
+    mouseDragging = true;
     stage.classList.add("dragging");
-    startX = event.clientX;
-    startY = event.clientY;
-    startTranslateX = x;
-    startTranslateY = y;
+
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
+    dragStartTranslateX = x;
+    dragStartTranslateY = y;
   });
 
   window.addEventListener("mousemove", event => {
-    if (!dragging) return;
-    x = startTranslateX + event.clientX - startX;
-    y = startTranslateY + event.clientY - startY;
-    apply();
+    if (!mouseDragging) return;
+
+    x = dragStartTranslateX + (event.clientX - dragStartX);
+    y = dragStartTranslateY + (event.clientY - dragStartY);
+    targetX = x;
+    targetY = y;
+    applyTransform();
   });
 
   window.addEventListener("mouseup", () => {
-    dragging = false;
+    mouseDragging = false;
     stage.classList.remove("dragging");
   });
 
   stage.addEventListener("touchstart", event => {
     if (event.touches.length === 2) {
+      stopAnimation();
+
       const a = event.touches[0];
       const b = event.touches[1];
-      initialPinchDistance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
-      initialPinchScale = scale;
-      dragging = false;
+
+      pinchStartDistance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+      pinchStartScale = scale;
+
+      pinchStartCenterX = (a.clientX + b.clientX) / 2;
+      pinchStartCenterY = (a.clientY + b.clientY) / 2;
+
+      pinchStartTranslateX = x;
+      pinchStartTranslateY = y;
     } else if (event.touches.length === 1 && scale > 1) {
+      stopAnimation();
+
       const t = event.touches[0];
-      dragging = true;
-      startX = t.clientX;
-      startY = t.clientY;
-      startTranslateX = x;
-      startTranslateY = y;
+      mouseDragging = true;
+
+      dragStartX = t.clientX;
+      dragStartY = t.clientY;
+      dragStartTranslateX = x;
+      dragStartTranslateY = y;
     }
   }, { passive: false });
 
   stage.addEventListener("touchmove", event => {
     event.preventDefault();
 
-    if (event.touches.length === 2 && initialPinchDistance > 0) {
+    if (event.touches.length === 2 && pinchStartDistance > 0) {
       const a = event.touches[0];
       const b = event.touches[1];
+
       const distance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
-      scale = clamp(initialPinchScale * distance / initialPinchDistance);
-      if (scale === 1) {
-        x = 0;
-        y = 0;
-      }
-      apply();
+      const newScale = clamp(pinchStartScale * (distance / pinchStartDistance));
+
+      const centerX = (a.clientX + b.clientX) / 2;
+      const centerY = (a.clientY + b.clientY) / 2;
+
+      const stageRect = stage.getBoundingClientRect();
+      const baseCenterX = stageRect.left + stageRect.width / 2;
+      const baseCenterY = stageRect.top + stageRect.height / 2;
+
+      const startLocalX = pinchStartCenterX - baseCenterX;
+      const startLocalY = pinchStartCenterY - baseCenterY;
+      const currentLocalX = centerX - baseCenterX;
+      const currentLocalY = centerY - baseCenterY;
+
+      const ratio = newScale / pinchStartScale;
+
+      x = currentLocalX - (startLocalX - pinchStartTranslateX) * ratio;
+      y = currentLocalY - (startLocalY - pinchStartTranslateY) * ratio;
+      scale = newScale;
+
+      targetScale = scale;
+      targetX = x;
+      targetY = y;
+
+      applyTransform();
       return;
     }
 
-    if (event.touches.length === 1 && dragging && scale > 1) {
+    if (event.touches.length === 1 && mouseDragging && scale > 1) {
       const t = event.touches[0];
-      x = startTranslateX + t.clientX - startX;
-      y = startTranslateY + t.clientY - startY;
-      apply();
+
+      x = dragStartTranslateX + (t.clientX - dragStartX);
+      y = dragStartTranslateY + (t.clientY - dragStartY);
+
+      targetX = x;
+      targetY = y;
+
+      applyTransform();
     }
   }, { passive: false });
 
   stage.addEventListener("touchend", event => {
-    if (event.touches.length < 2) initialPinchDistance = 0;
-    if (event.touches.length === 0) dragging = false;
+    if (event.touches.length < 2) {
+      pinchStartDistance = 0;
+    }
+
+    if (event.touches.length === 0) {
+      mouseDragging = false;
+
+      if (scale <= 1.01) {
+        scale = 1;
+        x = 0;
+        y = 0;
+        targetScale = 1;
+        targetX = 0;
+        targetY = 0;
+        applyTransform();
+      }
+    }
   });
 
-  stage.addEventListener("dblclick", () => {
-    if (scale === 1) scale = 2;
-    else {
-      scale = 1;
-      x = 0;
-      y = 0;
+  stage.addEventListener("dblclick", event => {
+    const rect = stage.getBoundingClientRect();
+    const pointerX = event.clientX - rect.left - rect.width / 2;
+    const pointerY = event.clientY - rect.top - rect.height / 2;
+
+    if (targetScale <= 1.01) {
+      targetScale = 2.5;
+      targetX = -pointerX * 1.5;
+      targetY = -pointerY * 1.5;
+    } else {
+      targetScale = 1;
+      targetX = 0;
+      targetY = 0;
     }
-    apply();
+
+    requestSmoothUpdate();
   });
 }
-
 
 function initialiseAboutToggle() {
   const button = document.getElementById("about-toggle");
