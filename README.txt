@@ -1,15 +1,20 @@
-CORLÉNE PIETERSE WEBSITE V009
+CORLÉNE PIETERSE WEBSITE V010 — CHANGED FILES ONLY
 
-Built directly from V008.
+This package contains only files that changed or were newly added.
 
-Changes:
-- Mobile hero image is shorter while still showing the entire image.
-- Paintings for Sale and Previous Paintings now sit directly under the hero.
-- On mobile, the two gallery director cards fit side-by-side.
-- About the Artist now starts with a short introduction and a See more / See less control.
-- The full approved artist biography expands on the same page.
-- NAMPO ALFA 2026 banner added to the newsletter section.
-- Facebook icon/link added to the homepage contact area.
-- Existing Contact page remains unchanged apart from stylesheet cache version.
+Included changes:
+- All 11 For Sale paintings added.
+- All 22 Previous Works added and sorted into the existing categories.
+- Previous works with no supplied details show only their image/category/status; no information was invented.
+- Latest supplied Oudste siel image replaces the earlier gallery image.
+- Painting images on For Sale and Previous are explicit clickable controls and open the fullscreen viewer.
+- Existing pinch/wheel zoom and drag/pan viewer retained.
+- Script and data cache-busted to v010 to prevent old browser code from blocking the viewer.
+- Facebook icon is now a small round blue icon with a white “f”.
+- Facebook icon added to Contact page while retaining the existing Facebook text link.
+- Duplicate Custom Paintings block removed.
+- One prominent Custom Paintings block now sits directly below Paintings for Sale / Previous Paintings on Home.
 
-No other intended changes were made.
+Do not delete existing unchanged assets such as:
+- assets/images/corlene-pieterse-hero.jpeg
+- assets/images/nampo-alfa-2026.jpeg

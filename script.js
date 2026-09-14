@@ -66,9 +66,16 @@ function paintingCard(painting) {
 
   return `
     <article class="painting-card" data-category="${painting.category}">
-      <div class="painting-image-wrap" data-viewer-src="${painting.image}" data-viewer-alt="${painting.title || "Painting"}">
+      <button
+        class="painting-image-wrap"
+        type="button"
+        data-viewer-src="${painting.image}"
+        data-viewer-alt="${painting.title || "Painting"}"
+        aria-label="Open ${painting.title || "painting"} image"
+      >
         <img class="painting-image" src="${painting.image}" alt="${painting.title || "Painting"}">
-      </div>
+      </button>
+
       <div class="painting-meta">
         <div class="painting-info-block">
           ${painting.title ? `<h2 class="painting-title">${painting.title}</h2>` : ""}
@@ -78,6 +85,7 @@ function paintingCard(painting) {
         </div>
         ${priceOrStatus}
       </div>
+
       ${painting.description ? `<p class="painting-description">${painting.description}</p>` : ""}
       ${action}
     </article>
@@ -183,6 +191,7 @@ function initialiseImageViewer() {
   document.addEventListener("click", event => {
     const target = event.target.closest("[data-viewer-src]");
     if (!target) return;
+    event.preventDefault();
     openViewer(target.dataset.viewerSrc, target.dataset.viewerAlt);
   });
 
