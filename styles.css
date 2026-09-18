@@ -649,27 +649,6 @@ body.viewer-open {
   gap: 12px;
 }
 
-.facebook-icon-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: #1877F2;
-  color: #ffffff;
-  text-decoration: none;
-  line-height: 1;
-}
-
-.facebook-icon-link svg {
-  display: none;
-}
-
-
 @media (max-width: 719px) {
   .hero {
     padding: 0;
@@ -755,20 +734,6 @@ body.viewer-open {
   line-height: 1.08;
 }
 
-.facebook-icon-link {
-  flex: 0 0 auto;
-  width: 38px;
-  height: 38px;
-  border: 0;
-  border-radius: 50%;
-  background: #1877F2;
-  color: #ffffff;
-}
-
-.facebook-icon-link svg {
-  display: none;
-}
-
 .contact-facebook {
   display: flex;
   align-items: center;
@@ -789,13 +754,178 @@ body.viewer-open {
 }
 
 
-.facebook-f {
+
+
+
+
+/* Actual Facebook brand asset — no improvised icon/background. */
+.facebook-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.facebook-icon-image {
   display: block;
-  margin-top: 5px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 30px;
-  font-weight: 700;
+  width: 38px;
+  height: 38px;
+}
+
+.painting-actions,
+.newsletter-share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 43px;
+  padding: 11px 16px;
+  border: 1px solid var(--black);
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.share-button:hover,
+.share-button:focus-visible {
+  background: var(--soft);
+}
+
+.share-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: none;
+}
+
+.share-dialog.open {
+  display: block;
+}
+
+.share-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.56);
+}
+
+.share-dialog-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(100%, 520px);
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+  transform: translateX(-50%);
+  padding: 22px;
+  background: var(--white);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.22);
+}
+
+.share-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.share-dialog-header h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+}
+
+.share-dialog-close {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: transparent;
+  color: var(--black);
+  font-size: 2rem;
   line-height: 1;
-  color: #ffffff;
-  transform: scaleX(0.88);
+  cursor: pointer;
+}
+
+.share-dialog-item-title {
+  margin: 18px 0 12px;
+  color: var(--grey);
+  font-size: 0.9rem;
+}
+
+.share-options {
+  display: grid;
+  gap: 8px;
+}
+
+.share-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.share-option:hover,
+.share-option:focus-visible {
+  background: var(--soft);
+}
+
+.share-option img {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+}
+
+body.share-dialog-open {
+  overflow: hidden;
+}
+
+.shared-target {
+  outline: 2px solid #111111;
+  outline-offset: 6px;
+  transition: outline-color 0.6s ease;
+}
+
+@media (min-width: 720px) {
+  .share-dialog-panel {
+    top: 50%;
+    bottom: auto;
+    border-radius: 14px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (max-width: 520px) {
+  .painting-actions .primary-button,
+  .painting-actions .share-button {
+    flex: 1 1 auto;
+  }
 }

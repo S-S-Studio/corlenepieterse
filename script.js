@@ -52,20 +52,29 @@ function paintingCard(painting) {
       ? `<p class="painting-price">${painting.price || "Price on request"}</p>`
       : `<p class="painting-status">Previous work</p>`;
 
-  const action =
+  const shareTitle = painting.title
+    ? `${painting.title} — Corléne Pieterse`
+    : `${painting.categoryLabel} previous painting — Corléne Pieterse`;
+
+  const shareUrl = `?painting=${painting.id}#painting-${painting.id}`;
+
+  const contactButton =
     painting.status === "for-sale"
-      ? `<div class="painting-actions">
-          <a
-            class="primary-button"
-            href="${whatsappUrl(`Hi, I would like to ask about the painting "${painting.title || "this painting"}".`)}"
-            target="_blank"
-            rel="noopener"
-          >Contact Artist</a>
-        </div>`
+      ? `<a
+          class="primary-button"
+          href="${whatsappUrl(`Hi, I would like to ask about the painting "${painting.title || "this painting"}".`)}"
+          target="_blank"
+          rel="noopener"
+        >Contact Artist</a>`
       : "";
 
   return `
-    <article class="painting-card" data-category="${painting.category}">
+    <article
+      class="painting-card"
+      id="painting-${painting.id}"
+      data-category="${painting.category}"
+      data-painting-id="${painting.id}"
+    >
       <button
         class="painting-image-wrap"
         type="button"
@@ -87,7 +96,16 @@ function paintingCard(painting) {
       </div>
 
       ${painting.description ? `<p class="painting-description">${painting.description}</p>` : ""}
-      ${action}
+
+      <div class="painting-actions">
+        ${contactButton}
+        <button
+          class="share-button"
+          type="button"
+          data-share-title="${shareTitle.replace(/"/g, "&quot;")}"
+          data-share-url="${shareUrl}"
+        >Share</button>
+      </div>
     </article>
   `;
 }
@@ -432,6 +450,187 @@ function initialiseImageViewer() {
   });
 }
 
+
+function absoluteShareUrl(relativeUrl) {
+  return new URL(relativeUrl, window.location.href).href;
+}
+
+function ensureShareDialog() {
+  let dialog = document.getElementById("share-dialog");
+  if (dialog) return dialog;
+
+  dialog = document.createElement("div");
+  dialog.id = "share-dialog";
+  dialog.className = "share-dialog";
+  dialog.setAttribute("aria-hidden", "true");
+
+  dialog.innerHTML = `
+    <div class="share-dialog-backdrop" data-share-close></div>
+    <section class="share-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
+      <div class="share-dialog-header">
+        <h2 id="share-dialog-title">Share</h2>
+        <button class="share-dialog-close" type="button" data-share-close aria-label="Close share options">×</button>
+      </div>
+
+      <p class="share-dialog-item-title" id="share-dialog-item-title"></p>
+
+      <div class="share-options">
+        <a class="share-option" id="share-whatsapp" href="#" target="_blank" rel="noopener">
+          <span>Share on WhatsApp</span>
+        </a>
+
+        <a class="share-option" id="share-facebook" href="#" target="_blank" rel="noopener">
+          <img src="assets/images/facebook.svg" alt="" aria-hidden="true">
+          <span>Share on Facebook</span>
+        </a>
+
+        <button class="share-option" id="share-copy" type="button">
+          <span id="share-copy-label">Copy Link</span>
+        </button>
+
+        <button class="share-option" id="share-native" type="button" hidden>
+          <span>More share options</span>
+        </button>
+      </div>
+    </section>
+  `;
+
+  document.body.appendChild(dialog);
+  return dialog;
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+function initialiseSharing() {
+  const dialog = ensureShareDialog();
+  const titleElement = dialog.querySelector("#share-dialog-item-title");
+  const whatsappLink = dialog.querySelector("#share-whatsapp");
+  const facebookLink = dialog.querySelector("#share-facebook");
+  const copyButton = dialog.querySelector("#share-copy");
+  const copyLabel = dialog.querySelector("#share-copy-label");
+  const nativeButton = dialog.querySelector("#share-native");
+
+  let currentTitle = "";
+  let currentUrl = "";
+
+  function closeShareDialog() {
+    dialog.classList.remove("open");
+    dialog.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("share-dialog-open");
+    copyLabel.textContent = "Copy Link";
+  }
+
+  function openShareDialog(button) {
+    currentTitle = button.dataset.shareTitle || "Corléne Pieterse";
+    currentUrl = absoluteShareUrl(button.dataset.shareUrl || window.location.href);
+
+    titleElement.textContent = currentTitle;
+
+    whatsappLink.href =
+      `https://wa.me/?text=${encodeURIComponent(`${currentTitle}\n${currentUrl}`)}`;
+
+    facebookLink.href =
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`;
+
+    nativeButton.hidden = typeof navigator.share !== "function";
+
+    dialog.classList.add("open");
+    dialog.setAttribute("aria-hidden", "false");
+    document.body.classList.add("share-dialog-open");
+  }
+
+  document.addEventListener("click", event => {
+    const shareButton = event.target.closest("[data-share-title][data-share-url]");
+    if (shareButton) {
+      event.preventDefault();
+      openShareDialog(shareButton);
+      return;
+    }
+
+    if (event.target.closest("[data-share-close]")) {
+      closeShareDialog();
+    }
+  });
+
+  copyButton.addEventListener("click", async () => {
+    try {
+      await copyTextToClipboard(currentUrl);
+      copyLabel.textContent = "Link copied";
+      window.setTimeout(() => {
+        copyLabel.textContent = "Copy Link";
+      }, 1800);
+    } catch {
+      copyLabel.textContent = "Could not copy";
+    }
+  });
+
+  nativeButton.addEventListener("click", async () => {
+    if (typeof navigator.share !== "function") return;
+
+    try {
+      await navigator.share({
+        title: currentTitle,
+        text: currentTitle,
+        url: currentUrl,
+      });
+    } catch (error) {
+      if (error && error.name !== "AbortError") {
+        console.error(error);
+      }
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && dialog.classList.contains("open")) {
+      closeShareDialog();
+    }
+  });
+}
+
+function initialiseSharedDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const paintingId = params.get("painting");
+  const newsId = params.get("news");
+
+  if (paintingId) {
+    window.requestAnimationFrame(() => {
+      const target = document.getElementById(`painting-${paintingId}`);
+      if (!target) return;
+
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.add("shared-target");
+      window.setTimeout(() => target.classList.remove("shared-target"), 2400);
+    });
+    return;
+  }
+
+  if (newsId && window.location.hash) {
+    window.requestAnimationFrame(() => {
+      const target = document.querySelector(window.location.hash);
+      if (!target) return;
+
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      target.classList.add("shared-target");
+      window.setTimeout(() => target.classList.remove("shared-target"), 2400);
+    });
+  }
+}
+
 function initialiseAboutToggle() {
   const button = document.getElementById("about-toggle");
   const full = document.getElementById("about-full");
@@ -452,5 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initialiseGeneralWhatsApp();
   initialiseFilters();
   initialiseImageViewer();
+  initialiseSharing();
+  initialiseSharedDeepLink();
   initialiseAboutToggle();
 });
