@@ -565,6 +565,7 @@ h2 {
   inset: 0;
   overflow: hidden;
   touch-action: none;
+  overscroll-behavior: contain;
   cursor: grab;
   background: transparent;
 }
@@ -573,19 +574,21 @@ h2 {
   cursor: grabbing;
 }
 
-.image-viewer-image {
+.image-viewer-image,
+#image-viewer-image {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 94vw;
-  height: 94vh;
+  display: block;
   max-width: none;
   max-height: none;
   object-fit: contain;
   transform-origin: center center;
   will-change: transform;
-  pointer-events: none;
   backface-visibility: hidden;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 .image-viewer-close {

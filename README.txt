@@ -1,20 +1,13 @@
-CORLÉNE PIETERSE WEBSITE V013 — CHANGED FILES ONLY
+CORLÉNE PIETERSE WEBSITE V014 — CHANGED FILES ONLY
 
-Changes:
-- Visible category "Human" renamed to "Portrait" on both For Sale and Previous Paintings.
-- Portrait painting data now uses the Portrait category.
-- Circle of Belonging changed from "100 cm round" to "100 cm diameter".
-- Facebook icon replaced with the actual 2021 Facebook brand icon asset sourced from facebook.com (via Wikimedia Commons mirror).
-- Every For Sale and Previous painting now has a Share button.
-- Painting share box includes:
-  * Share on WhatsApp
-  * Share on Facebook
-  * Copy Link
-  * More share options when the browser/device supports the native Share API
-- Every painting gets a direct share URL using a painting query parameter and anchor.
-- Opening a shared painting URL scrolls to and briefly highlights that painting.
-- NAMPO ALFA 2026 newsletter now has a Share button with the same sharing options.
-- Opening the shared newsletter URL scrolls directly to that news item.
-- Existing fullscreen painting viewer and V011 zoom/pan behavior are unchanged.
+Fixes:
+- Added the actual WhatsApp brand logo to "Share on WhatsApp".
+- Fixed the fullscreen painting viewer bug: the viewer CSS targeted a class that the fullscreen <img> did not have.
+- Fullscreen images now open centered and fitted/upscaled to the available screen while preserving aspect ratio.
+- Rebuilt zoom/pan with Pointer Events for better iPhone/Android/desktop behavior.
+- Pinch zoom anchors to the fingers.
+- Mouse-wheel zoom anchors to the pointer and remains smoothly animated.
+- Drag/pan is constrained so the image cannot disappear completely off-screen.
+- Viewer re-fits correctly after screen rotation/resizing.
 
-This ZIP contains only files changed/new in V013.
+No painting details, prices, categories, newsletter text, or other page content changed.

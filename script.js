@@ -169,57 +169,75 @@ function initialiseImageViewer() {
   const MIN_SCALE = 1;
   const MAX_SCALE = 8;
 
+  let baseWidth = 0;
+  let baseHeight = 0;
+
   let scale = 1;
-  let x = 0;
-  let y = 0;
+  let translateX = 0;
+  let translateY = 0;
 
   let targetScale = 1;
   let targetX = 0;
   let targetY = 0;
-
   let animationFrame = null;
-  let mouseDragging = false;
-  let dragStartX = 0;
-  let dragStartY = 0;
-  let dragStartTranslateX = 0;
-  let dragStartTranslateY = 0;
 
-  let pinchStartDistance = 0;
-  let pinchStartScale = 1;
-  let pinchStartCenterX = 0;
-  let pinchStartCenterY = 0;
-  let pinchStartTranslateX = 0;
-  let pinchStartTranslateY = 0;
+  const pointers = new Map();
+  let gestureMode = null;
+  let dragStart = null;
+  let pinchStart = null;
 
-  const clamp = value => Math.min(MAX_SCALE, Math.max(MIN_SCALE, value));
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function stageSize() {
+    return {
+      width: stage.clientWidth || window.innerWidth,
+      height: stage.clientHeight || window.innerHeight,
+    };
+  }
+
+  function clampPan(x, y, atScale = scale) {
+    const size = stageSize();
+    const scaledWidth = baseWidth * atScale;
+    const scaledHeight = baseHeight * atScale;
+
+    const maxX = Math.max(0, (scaledWidth - size.width) / 2);
+    const maxY = Math.max(0, (scaledHeight - size.height) / 2);
+
+    return {
+      x: clamp(x, -maxX, maxX),
+      y: clamp(y, -maxY, maxY),
+    };
+  }
 
   function applyTransform() {
     image.style.transform =
-      `translate3d(-50%, -50%, 0) translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+      `translate3d(-50%, -50%, 0) translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
   }
 
   function stopAnimation() {
-    if (animationFrame) {
+    if (animationFrame !== null) {
       cancelAnimationFrame(animationFrame);
       animationFrame = null;
     }
   }
 
   function animateToTarget() {
-    const ease = 0.24;
+    const ease = 0.22;
 
     scale += (targetScale - scale) * ease;
-    x += (targetX - x) * ease;
-    y += (targetY - y) * ease;
+    translateX += (targetX - translateX) * ease;
+    translateY += (targetY - translateY) * ease;
 
     if (
       Math.abs(targetScale - scale) < 0.001 &&
-      Math.abs(targetX - x) < 0.1 &&
-      Math.abs(targetY - y) < 0.1
+      Math.abs(targetX - translateX) < 0.15 &&
+      Math.abs(targetY - translateY) < 0.15
     ) {
       scale = targetScale;
-      x = targetX;
-      y = targetY;
+      translateX = targetX;
+      translateY = targetY;
       applyTransform();
       animationFrame = null;
       return;
@@ -230,7 +248,7 @@ function initialiseImageViewer() {
   }
 
   function requestSmoothUpdate() {
-    if (!animationFrame) {
+    if (animationFrame === null) {
       animationFrame = requestAnimationFrame(animateToTarget);
     }
   }
@@ -238,34 +256,152 @@ function initialiseImageViewer() {
   function resetTransform() {
     stopAnimation();
     scale = 1;
-    x = 0;
-    y = 0;
+    translateX = 0;
+    translateY = 0;
     targetScale = 1;
     targetX = 0;
     targetY = 0;
     applyTransform();
   }
 
-  function openViewer(src, alt) {
-    image.src = src;
-    image.alt = alt || "Painting";
+  function fitImageToStage() {
+    if (!image.naturalWidth || !image.naturalHeight) return;
+
+    const size = stageSize();
+    const maxWidth = Math.max(1, size.width - 24);
+    const maxHeight = Math.max(1, size.height - 24);
+
+    // Intentionally allow upscaling so older/smaller photos don't open tiny.
+    const fitRatio = Math.min(
+      maxWidth / image.naturalWidth,
+      maxHeight / image.naturalHeight
+    );
+
+    baseWidth = image.naturalWidth * fitRatio;
+    baseHeight = image.naturalHeight * fitRatio;
+
+    image.style.width = `${baseWidth}px`;
+    image.style.height = `${baseHeight}px`;
+
     resetTransform();
+  }
+
+  function openViewer(src, alt) {
     viewer.classList.add("open");
     viewer.setAttribute("aria-hidden", "false");
     document.body.classList.add("viewer-open");
+
+    image.alt = alt || "Painting";
+
+    if (image.getAttribute("src") === src && image.complete && image.naturalWidth) {
+      fitImageToStage();
+    } else {
+      image.onload = fitImageToStage;
+      image.src = src;
+    }
   }
 
   function closeViewer() {
     stopAnimation();
+    pointers.clear();
+    gestureMode = null;
     viewer.classList.remove("open");
     viewer.setAttribute("aria-hidden", "true");
     document.body.classList.remove("viewer-open");
     resetTransform();
   }
 
+  function localPoint(clientX, clientY) {
+    const rect = stage.getBoundingClientRect();
+    return {
+      x: clientX - rect.left - rect.width / 2,
+      y: clientY - rect.top - rect.height / 2,
+    };
+  }
+
+  function zoomAround(clientX, clientY, newScale, smooth = true) {
+    newScale = clamp(newScale, MIN_SCALE, MAX_SCALE);
+
+    const point = localPoint(clientX, clientY);
+    const currentScale = smooth ? targetScale : scale;
+    const currentX = smooth ? targetX : translateX;
+    const currentY = smooth ? targetY : translateY;
+
+    const contentX = (point.x - currentX) / currentScale;
+    const contentY = (point.y - currentY) / currentScale;
+
+    let nextX = point.x - contentX * newScale;
+    let nextY = point.y - contentY * newScale;
+
+    if (newScale <= 1.001) {
+      newScale = 1;
+      nextX = 0;
+      nextY = 0;
+    }
+
+    const clamped = clampPan(nextX, nextY, newScale);
+
+    if (smooth) {
+      targetScale = newScale;
+      targetX = clamped.x;
+      targetY = clamped.y;
+      requestSmoothUpdate();
+    } else {
+      stopAnimation();
+      scale = newScale;
+      translateX = clamped.x;
+      translateY = clamped.y;
+      targetScale = scale;
+      targetX = translateX;
+      targetY = translateY;
+      applyTransform();
+    }
+  }
+
+  function beginDrag(pointer) {
+    stopAnimation();
+    targetScale = scale;
+    targetX = translateX;
+    targetY = translateY;
+    gestureMode = "drag";
+    dragStart = {
+      pointerId: pointer.pointerId,
+      clientX: pointer.clientX,
+      clientY: pointer.clientY,
+      x: translateX,
+      y: translateY,
+    };
+    stage.classList.add("dragging");
+  }
+
+  function beginPinch() {
+    if (pointers.size < 2) return;
+
+    stopAnimation();
+
+    const [a, b] = [...pointers.values()].slice(0, 2);
+    const dx = b.clientX - a.clientX;
+    const dy = b.clientY - a.clientY;
+    const distance = Math.hypot(dx, dy) || 1;
+    const midpointX = (a.clientX + b.clientX) / 2;
+    const midpointY = (a.clientY + b.clientY) / 2;
+    const localMid = localPoint(midpointX, midpointY);
+
+    pinchStart = {
+      distance,
+      scale,
+      contentX: (localMid.x - translateX) / scale,
+      contentY: (localMid.y - translateY) / scale,
+    };
+
+    gestureMode = "pinch";
+    stage.classList.add("dragging");
+  }
+
   document.addEventListener("click", event => {
     const target = event.target.closest("[data-viewer-src]");
     if (!target) return;
+
     event.preventDefault();
     openViewer(target.dataset.viewerSrc, target.dataset.viewerAlt);
   });
@@ -281,172 +417,152 @@ function initialiseImageViewer() {
   stage.addEventListener("wheel", event => {
     event.preventDefault();
 
-    const rect = stage.getBoundingClientRect();
-    const pointerX = event.clientX - rect.left - rect.width / 2;
-    const pointerY = event.clientY - rect.top - rect.height / 2;
-
-    const oldScale = targetScale;
-    const zoomFactor = Math.exp(-event.deltaY * 0.0015);
-    targetScale = clamp(targetScale * zoomFactor);
-
-    if (targetScale <= MIN_SCALE + 0.001) {
-      targetScale = MIN_SCALE;
-      targetX = 0;
-      targetY = 0;
-    } else {
-      const ratio = targetScale / oldScale;
-      targetX = pointerX - (pointerX - targetX) * ratio;
-      targetY = pointerY - (pointerY - targetY) * ratio;
-    }
-
-    requestSmoothUpdate();
+    const zoomFactor = Math.exp(-event.deltaY * 0.0016);
+    zoomAround(
+      event.clientX,
+      event.clientY,
+      targetScale * zoomFactor,
+      true
+    );
   }, { passive: false });
 
-  stage.addEventListener("mousedown", event => {
-    if (targetScale <= 1) return;
+  stage.addEventListener("pointerdown", event => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
 
-    stopAnimation();
-    scale = targetScale;
-    x = targetX;
-    y = targetY;
+    event.preventDefault();
+    stage.setPointerCapture?.(event.pointerId);
 
-    mouseDragging = true;
-    stage.classList.add("dragging");
+    pointers.set(event.pointerId, {
+      pointerId: event.pointerId,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      pointerType: event.pointerType,
+    });
 
-    dragStartX = event.clientX;
-    dragStartY = event.clientY;
-    dragStartTranslateX = x;
-    dragStartTranslateY = y;
-  });
-
-  window.addEventListener("mousemove", event => {
-    if (!mouseDragging) return;
-
-    x = dragStartTranslateX + (event.clientX - dragStartX);
-    y = dragStartTranslateY + (event.clientY - dragStartY);
-    targetX = x;
-    targetY = y;
-    applyTransform();
-  });
-
-  window.addEventListener("mouseup", () => {
-    mouseDragging = false;
-    stage.classList.remove("dragging");
-  });
-
-  stage.addEventListener("touchstart", event => {
-    if (event.touches.length === 2) {
-      stopAnimation();
-
-      const a = event.touches[0];
-      const b = event.touches[1];
-
-      pinchStartDistance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
-      pinchStartScale = scale;
-
-      pinchStartCenterX = (a.clientX + b.clientX) / 2;
-      pinchStartCenterY = (a.clientY + b.clientY) / 2;
-
-      pinchStartTranslateX = x;
-      pinchStartTranslateY = y;
-    } else if (event.touches.length === 1 && scale > 1) {
-      stopAnimation();
-
-      const t = event.touches[0];
-      mouseDragging = true;
-
-      dragStartX = t.clientX;
-      dragStartY = t.clientY;
-      dragStartTranslateX = x;
-      dragStartTranslateY = y;
+    if (pointers.size === 1) {
+      beginDrag(event);
+    } else if (pointers.size === 2) {
+      beginPinch();
     }
-  }, { passive: false });
+  });
 
-  stage.addEventListener("touchmove", event => {
+  stage.addEventListener("pointermove", event => {
+    if (!pointers.has(event.pointerId)) return;
+
     event.preventDefault();
 
-    if (event.touches.length === 2 && pinchStartDistance > 0) {
-      const a = event.touches[0];
-      const b = event.touches[1];
+    pointers.set(event.pointerId, {
+      pointerId: event.pointerId,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      pointerType: event.pointerType,
+    });
 
-      const distance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
-      const newScale = clamp(pinchStartScale * (distance / pinchStartDistance));
+    if (pointers.size >= 2) {
+      if (gestureMode !== "pinch" || !pinchStart) {
+        beginPinch();
+      }
 
-      const centerX = (a.clientX + b.clientX) / 2;
-      const centerY = (a.clientY + b.clientY) / 2;
+      const [a, b] = [...pointers.values()].slice(0, 2);
+      const distance = Math.hypot(
+        b.clientX - a.clientX,
+        b.clientY - a.clientY
+      ) || 1;
 
-      const stageRect = stage.getBoundingClientRect();
-      const baseCenterX = stageRect.left + stageRect.width / 2;
-      const baseCenterY = stageRect.top + stageRect.height / 2;
+      const midpointX = (a.clientX + b.clientX) / 2;
+      const midpointY = (a.clientY + b.clientY) / 2;
+      const localMid = localPoint(midpointX, midpointY);
 
-      const startLocalX = pinchStartCenterX - baseCenterX;
-      const startLocalY = pinchStartCenterY - baseCenterY;
-      const currentLocalX = centerX - baseCenterX;
-      const currentLocalY = centerY - baseCenterY;
+      const newScale = clamp(
+        pinchStart.scale * (distance / pinchStart.distance),
+        MIN_SCALE,
+        MAX_SCALE
+      );
 
-      const ratio = newScale / pinchStartScale;
+      let nextX = localMid.x - pinchStart.contentX * newScale;
+      let nextY = localMid.y - pinchStart.contentY * newScale;
 
-      x = currentLocalX - (startLocalX - pinchStartTranslateX) * ratio;
-      y = currentLocalY - (startLocalY - pinchStartTranslateY) * ratio;
+      if (newScale <= 1.001) {
+        nextX = 0;
+        nextY = 0;
+      }
+
+      const clamped = clampPan(nextX, nextY, newScale);
+
       scale = newScale;
-
+      translateX = clamped.x;
+      translateY = clamped.y;
       targetScale = scale;
-      targetX = x;
-      targetY = y;
-
+      targetX = translateX;
+      targetY = translateY;
       applyTransform();
       return;
     }
 
-    if (event.touches.length === 1 && mouseDragging && scale > 1) {
-      const t = event.touches[0];
+    if (gestureMode === "drag" && dragStart && scale > 1.001) {
+      const nextX = dragStart.x + (event.clientX - dragStart.clientX);
+      const nextY = dragStart.y + (event.clientY - dragStart.clientY);
+      const clamped = clampPan(nextX, nextY, scale);
 
-      x = dragStartTranslateX + (t.clientX - dragStartX);
-      y = dragStartTranslateY + (t.clientY - dragStartY);
-
-      targetX = x;
-      targetY = y;
-
+      translateX = clamped.x;
+      translateY = clamped.y;
+      targetX = translateX;
+      targetY = translateY;
       applyTransform();
     }
   }, { passive: false });
 
-  stage.addEventListener("touchend", event => {
-    if (event.touches.length < 2) {
-      pinchStartDistance = 0;
+  function endPointer(event) {
+    pointers.delete(event.pointerId);
+    stage.releasePointerCapture?.(event.pointerId);
+
+    if (pointers.size >= 2) {
+      beginPinch();
+      return;
     }
 
-    if (event.touches.length === 0) {
-      mouseDragging = false;
-
-      if (scale <= 1.01) {
-        scale = 1;
-        x = 0;
-        y = 0;
-        targetScale = 1;
-        targetX = 0;
-        targetY = 0;
-        applyTransform();
-      }
+    if (pointers.size === 1) {
+      const remaining = [...pointers.values()][0];
+      beginDrag(remaining);
+      return;
     }
-  });
+
+    gestureMode = null;
+    dragStart = null;
+    pinchStart = null;
+    stage.classList.remove("dragging");
+
+    if (scale <= 1.001) {
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
+      targetScale = 1;
+      targetX = 0;
+      targetY = 0;
+      applyTransform();
+    }
+  }
+
+  stage.addEventListener("pointerup", endPointer);
+  stage.addEventListener("pointercancel", endPointer);
 
   stage.addEventListener("dblclick", event => {
-    const rect = stage.getBoundingClientRect();
-    const pointerX = event.clientX - rect.left - rect.width / 2;
-    const pointerY = event.clientY - rect.top - rect.height / 2;
+    event.preventDefault();
 
-    if (targetScale <= 1.01) {
-      targetScale = 2.5;
-      targetX = -pointerX * 1.5;
-      targetY = -pointerY * 1.5;
+    if (targetScale <= 1.05) {
+      zoomAround(event.clientX, event.clientY, 2.5, true);
     } else {
       targetScale = 1;
       targetX = 0;
       targetY = 0;
+      requestSmoothUpdate();
     }
+  });
 
-    requestSmoothUpdate();
+  window.addEventListener("resize", () => {
+    if (viewer.classList.contains("open") && image.complete && image.naturalWidth) {
+      fitImageToStage();
+    }
   });
 }
 
@@ -476,6 +592,7 @@ function ensureShareDialog() {
 
       <div class="share-options">
         <a class="share-option" id="share-whatsapp" href="#" target="_blank" rel="noopener">
+          <img src="assets/images/whatsapp.svg" alt="" aria-hidden="true">
           <span>Share on WhatsApp</span>
         </a>
 
