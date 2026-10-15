@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = "27712170470";
+function getWhatsAppNumber(){return (window.SITE_SETTINGS?.whatsapp||"27712170470").replace(/\D/g,"");}
 
 function initialiseMenu() {
   const toggle = document.querySelector(".menu-toggle");
@@ -32,7 +32,7 @@ function setYear() {
 }
 
 function whatsappUrl(message) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${getWhatsAppNumber()}?text=${encodeURIComponent(message)}`;
 }
 
 function initialiseGeneralWhatsApp() {
@@ -131,31 +131,7 @@ function renderGallery(containerId, status, filter = "all") {
   container.innerHTML = matches.map(paintingCard).join("");
 }
 
-function initialiseFilters() {
-  const filterBar = document.querySelector(".filter-bar");
-
-  if (!filterBar) {
-    return;
-  }
-
-  const group = filterBar.dataset.filterGroup;
-  const isForSale = group === "for-sale";
-  const containerId = isForSale ? "for-sale-gallery" : "previous-gallery";
-  const status = isForSale ? "for-sale" : "previous";
-
-  renderGallery(containerId, status, "all");
-
-  filterBar.querySelectorAll(".filter-button").forEach((button) => {
-    button.addEventListener("click", () => {
-      filterBar.querySelectorAll(".filter-button").forEach((item) => {
-        item.classList.remove("active");
-      });
-
-      button.classList.add("active");
-      renderGallery(containerId, status, button.dataset.filter);
-    });
-  });
-}
+function initialiseFilters(){const bar=document.querySelector(".filter-bar");if(!bar)return;if(Array.isArray(window.CATEGORIES)&&window.CATEGORIES.length){bar.innerHTML=['<button class="filter-button active" data-filter="all">All</button>',...window.CATEGORIES.map(c=>`<button class="filter-button" data-filter="${c.id}">${c.name}</button>`)].join("")}const group=bar.dataset.filterGroup,isSale=group==="for-sale",containerId=isSale?"for-sale-gallery":"previous-gallery",status=isSale?"for-sale":"previous";renderGallery(containerId,status,"all");bar.querySelectorAll(".filter-button").forEach(btn=>btn.addEventListener("click",()=>{bar.querySelectorAll(".filter-button").forEach(x=>x.classList.remove("active"));btn.classList.add("active");renderGallery(containerId,status,btn.dataset.filter)}))}
 
 
 function initialiseImageViewer() {
@@ -684,6 +660,39 @@ function initialiseSharing() {
     }
   });
 
+  facebookLink.addEventListener("click", async event => {
+    const isTouchDevice =
+      window.matchMedia?.("(pointer: coarse)")?.matches ||
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (!isTouchDevice || typeof navigator.share !== "function") {
+      // Desktop/non-touch: allow the normal Facebook share URL to open.
+      return;
+    }
+
+    // On mobile, Facebook's app can intercept sharer.php and only open its
+    // home screen. The native share sheet passes the URL to Facebook's
+    // actual share target more reliably.
+    event.preventDefault();
+
+    try {
+      await navigator.share({
+        title: currentTitle,
+        text: currentTitle,
+        url: currentUrl,
+      });
+    } catch (error) {
+      if (error && error.name !== "AbortError") {
+        // Fallback to Facebook's web sharer if native sharing fails.
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`,
+          "_blank",
+          "noopener,noreferrer"
+        );
+      }
+    }
+  });
+
   copyButton.addEventListener("click", async () => {
     try {
       await copyTextToClipboard(currentUrl);
@@ -762,7 +771,11 @@ function initialiseAboutToggle() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function applyCloudSettings(){const s=window.SITE_SETTINGS||{};if(!Object.keys(s).length)return;document.querySelectorAll(".artist-name").forEach(e=>{if(s.artist_name)e.textContent=s.artist_name});const intro=document.querySelector(".about-intro p");if(intro&&s.about_intro)intro.textContent=s.about_intro;const full=document.getElementById("about-full");if(full&&s.about_full)full.innerHTML=s.about_full.split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");const hero=document.querySelector(".hero-image");if(hero&&s.hero_image_url)hero.src=s.hero_image_url;document.querySelectorAll('a[href^="mailto:"]').forEach(a=>{if(s.email){a.href=`mailto:${s.email}`;a.textContent=s.email}});document.querySelectorAll(".facebook-icon-link,.contact-facebook a").forEach(a=>{if(s.facebook_url)a.href=s.facebook_url})}function renderCloudNews(){const sec=document.getElementById("newsletter"),tr=document.querySelector(".news-triggers"),items=window.NEWS_ITEMS;if(!sec||!Array.isArray(items)||!items.length)return;if(tr)tr.innerHTML='<p class="eyebrow">LATEST NEWS</p>'+items.map(n=>`<a class="news-trigger" href="#news-${n.id}">${n.title}</a>`).join("");sec.innerHTML='<p class="eyebrow">NEWS & UPDATES</p><h2>Latest from the Artist</h2>'+items.map(n=>{const im=n.image_url?`<img class="newsletter-banner" src="${n.image_url}" alt="${n.title}">`:"",pars=String(n.content||"").split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");return `<article class="newsletter-item" id="news-${n.id}">${im}<h3>${n.title}</h3>${pars}<div class="newsletter-share"><button class="share-button" type="button" data-share-title="${n.title.replace(/"/g,"&quot;")}" data-share-url="index.html?news=${encodeURIComponent(n.slug||n.id)}#news-${n.id}">Share</button></div></article>`}).join("")}
+document.addEventListener("DOMContentLoaded", async () => {
+  if(typeof window.loadPublicCloudData==="function") await window.loadPublicCloudData();
+  applyCloudSettings();
+  renderCloudNews();
   initialiseMenu();
   setYear();
   initialiseGeneralWhatsApp();

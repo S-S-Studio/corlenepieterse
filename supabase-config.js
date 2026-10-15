@@ -1,0 +1,5 @@
+window.SITE_CONFIG = {
+  supabaseUrl: "PASTE_SUPABASE_PROJECT_URL_HERE",
+  supabaseAnonKey: "PASTE_SUPABASE_ANON_KEY_HERE",
+  publicSiteUrl: "https://corlenepieterse.co.za"
+};
