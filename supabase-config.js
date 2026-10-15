@@ -1,5 +1,5 @@
 window.SITE_CONFIG = {
-  supabaseUrl: "PASTE_SUPABASE_PROJECT_URL_HERE",
-  supabaseAnonKey: "PASTE_SUPABASE_ANON_KEY_HERE",
+  supabaseUrl: "https://zbirbzqzpawreqlvewxc.supabase.co",
+  supabaseAnonKey: "sb_publishable_iiBXsG-8rjwWcqZZLSTrKw_dgIlilqP",
   publicSiteUrl: "https://corlenepieterse.co.za"
 };
